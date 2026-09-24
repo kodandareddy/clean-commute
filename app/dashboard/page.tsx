@@ -36,21 +36,29 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchStats() {
       try {
+        console.log("[Dashboard] Starting to fetch stats...");
         const response = await fetch("/api/stats", {
           cache: "no-store",
         });
 
+        console.log("[Dashboard] Response status:", response.status);
+
         if (!response.ok) {
-          throw new Error("Failed to fetch stats");
+          const errorText = await response.text();
+          console.error("[Dashboard] Response not OK:", errorText);
+          throw new Error(`Failed to fetch stats: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log("[Dashboard] Data received:", data);
         setStats(data);
+        console.log("[Dashboard] Stats state updated");
       } catch (err) {
-        console.error("Error fetching stats:", err);
-        setError("Unable to load statistics");
+        console.error("[Dashboard] Error fetching stats:", err);
+        setError(err instanceof Error ? err.message : "Unable to load statistics");
       } finally {
         setLoading(false);
+        console.log("[Dashboard] Loading complete");
       }
     }
 
