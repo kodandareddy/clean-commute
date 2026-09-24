@@ -1,111 +1,37 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import StatsCard from "@/components/StatsCard";
 import ModeChart from "@/components/ModeChart";
 import { TRAVEL_MODES } from "@/lib/seed";
 
-interface Stats {
-  totals: {
-    entries: number;
-    kilometers: number;
-  };
-  byMode: Array<{
-    travel_mode: string;
-    count: string;
-    total_km: string;
-    percentage: string;
-  }>;
-  byLocation: Array<{
-    office_location: string;
-    count: string;
-    total_km: string;
-  }>;
-  daily: Array<{
-    date: string;
-    count: string;
-    total_km: string;
-  }>;
+async function getStats() {
+  try {
+    // Use Vercel URL in production, localhost in development
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                    "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/stats`, {
+      cache: "no-store",
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch stats");
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    return null;
+  }
 }
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function DashboardPage() {
+  const stats = await getStats();
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const response = await fetch("/api/stats", {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch stats");
-        }
-
-        const data = await response.json();
-        setStats(data);
-      } catch (err) {
-        console.error("Error fetching stats:", err);
-        setError("Unable to load statistics");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchStats();
-  }, []);
-
-  if (loading) {
+  if (!stats) {
     return (
-      <main className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <main className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              Dashboard
-            </h1>
-            <p className="text-gray-600">
-              Clean Commute Challenge - October 2026
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="text-6xl mb-4">⏳</div>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-              Loading statistics...
-            </h2>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (error || !stats) {
-    return (
-      <main className="min-h-screen bg-gray-50 p-4 md:p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              Dashboard
-            </h1>
-            <p className="text-gray-600">
-              Clean Commute Challenge - October 2026
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-              {error || "Unable to load statistics"}
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Please try refreshing the page or contact support.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Refresh Page
-            </button>
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-600">Unable to load statistics</p>
           </div>
         </div>
       </main>
@@ -115,7 +41,7 @@ export default function DashboardPage() {
   const hasData = stats.totals.entries > 0;
 
   // Map mode IDs to display names with icons
-  const modesWithNames = stats.byMode.map((mode) => {
+  const modesWithNames = stats.byMode.map((mode: any) => {
     const modeInfo = TRAVEL_MODES.find((m) => m.id === mode.travel_mode);
     return {
       ...mode,
@@ -202,7 +128,7 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {stats.byLocation.map((location) => (
+                      {stats.byLocation.map((location: any) => (
                         <tr key={location.office_location}>
                           <td className="px-4 py-3 text-sm text-gray-900 capitalize">
                             {location.office_location.replace(/-/g, " ")}
