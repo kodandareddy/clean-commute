@@ -145,16 +145,23 @@ export default async function DashboardPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/api/export"
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center"
+                download
+              >
+                📥 Export CSV
+              </a>
               <a
                 href="/log"
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center"
               >
                 Log Another Commute
               </a>
               <a
                 href="/"
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition text-center"
               >
                 Back to Home
               </a>
