@@ -4,7 +4,10 @@ import { TRAVEL_MODES } from "@/lib/seed";
 
 async function getStats() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // Use Vercel URL in production, localhost in development
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 
+                    "http://localhost:3000";
     const response = await fetch(`${baseUrl}/api/stats`, {
       cache: "no-store",
     });
